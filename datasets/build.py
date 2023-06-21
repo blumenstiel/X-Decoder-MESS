@@ -53,6 +53,7 @@ from .evaluation import (InstanceSegEvaluator,
 )
 from xdecoder.utils import configurable
 from utils.distributed import get_world_size
+from mess.evaluation.sem_seg_evaluation import MESSSemSegEvaluator
 
 class JointLoader(torchdata.IterableDataset):
     def __init__(self, loaders, key_dataset):
@@ -321,6 +322,10 @@ def build_detection_train_loader(
 
 def get_config_from_name(cfg, dataset_name):
     # adjust config according to dataset
+    if dataset_name in DatasetCatalog.list():
+        # Using ADE20K config as default for all datasets
+        cfg.update(cfg['ADE20K'])
+        return cfg
     if 'refcoco' in dataset_name:
         cfg.update(cfg['REF'])
         return cfg
@@ -439,7 +444,8 @@ def build_evaluator(cfg, dataset_name, output_folder=None):
     # semantic segmentation
     if evaluator_type in ["sem_seg", "ade20k_panoptic_seg"]:
         evaluator_list.append(
-            SemSegEvaluator(
+            # SemSegEvaluator(
+            MESSSemSegEvaluator(
                 dataset_name,
                 distributed=True,
                 output_dir=output_folder,

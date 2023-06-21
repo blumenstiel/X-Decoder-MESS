@@ -1,3 +1,6 @@
+# This config is updated for the Focal-L model based on the config provided by SEEM:
+# https://github.com/UX-Decoder/Segment-Everything-Everywhere-All-At-Once/blob/main/demo_code/configs/seem/seem_focall_lang.yaml
+
 # --------------------------------------------------------
 # X-Decoder -- Generalized Decoding for Pixel, Image, and Language
 # Copyright (c) 2022 Microsoft
@@ -19,7 +22,7 @@ MODEL:
   KEYPOINT_ON: false
   LOAD_PROPOSALS: false
   DIM_PROJ: 512
-  BACKBONE_DIM: 768
+  BACKBONE_DIM: 1536 # 768
   TEXT:
     ARCH: vlpencoder
     NAME: transformer
@@ -30,15 +33,15 @@ MODEL:
     LAYERS: 12 # 6
     AUTOGRESSIVE: True
   BACKBONE:
-    NAME: focal_dw
+    NAME: focal
     PRETRAINED: ''
     LOAD_PRETRAINED: false
     FOCAL:
       PRETRAIN_IMG_SIZE: 224
       PATCH_SIZE: 4
-      EMBED_DIM: 96
-      DEPTHS: [2, 2, 6, 2]
-      FOCAL_LEVELS: [3, 3, 3, 3]
+      EMBED_DIM: 192
+      DEPTHS: [2, 2, 18, 2]
+      FOCAL_LEVELS: [4, 4, 4, 4]
       FOCAL_WINDOWS: [3, 3, 3, 3]
       DROP_PATH_RATE: 0.3
       MLP_RATIO: 4.0
@@ -86,10 +89,11 @@ MODEL:
       DIM_IMG: 768
       ENSEMBLE: True
     HIDDEN_DIM: 512
-    NUM_OBJECT_QUERIES: 101
+    NUM_OBJECT_QUERIES: 201 # 101
     NHEADS: 8
     DROPOUT: 0.0
     DIM_FEEDFORWARD: 2048
+    MAX_SPATIAL_LEN: [512, 512, 512, 512]
     PRE_NORM: False
     ENFORCE_INPUT_PROJ: False
     SIZE_DIVISIBILITY: 32
@@ -97,16 +101,16 @@ MODEL:
     OVERSAMPLE_RATIO: 3.0
     IMPORTANCE_SAMPLE_RATIO: 0.75
     DEC_LAYERS: 10  # 9 decoder layers, add one for the loss on learnable query
-    TOP_GROUNDING_LAYERS: 3
-    TOP_CAPTION_LAYERS: 3
-    TOP_CAPTIONING_LAYERS: 3
-    TOP_RETRIEVAL_LAYERS: 3
+    TOP_GROUNDING_LAYERS: 10
+    TOP_CAPTION_LAYERS: 10
+    TOP_SPATIAL_LAYERS: 10
+    TOP_OPENIMAGE_LAYERS: 10
     TEST:
       SEMANTIC_ON: True
       INSTANCE_ON: True
       PANOPTIC_ON: True
       OVERLAP_THRESHOLD: 0.8
-      OBJECT_MASK_THRESHOLD: 0.8
+      OBJECT_MASK_THRESHOLD: 0.4
       SEM_SEG_POSTPROCESSING_BEFORE_INFERENCE: false
 
 COCO:
@@ -181,7 +185,7 @@ DATASETS:
 
 DATALOADER:
   FILTER_EMPTY_ANNOTATIONS: False
-  NUM_WORKERS: 16
+  NUM_WORKERS: 4
   LOAD_PROPOSALS: False
   SAMPLER_TRAIN: "TrainingSampler"
   ASPECT_RATIO_GROUPING: True
@@ -300,3 +304,5 @@ CITY:
   DATALOADER:
     FILTER_EMPTY_ANNOTATIONS: True
     NUM_WORKERS: 4
+
+WANDB_DEMO_IMGS: 10

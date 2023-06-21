@@ -1,6 +1,6 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
-conda activate <env_name>
+conda activate xdecoder
 
 # Benchmark
 export DETECTRON2_DATASETS="datasets"
@@ -9,11 +9,16 @@ TEST_DATASETS="bdd100k_sem_seg_val dark_zurich_sem_seg_val mhp_v1_sem_seg_test f
 # Run experiments
 for DATASET in $TEST_DATASETS
 do
- python train_net.py --num-gpus 1 --eval-only --config-file configs/<config_file>.yaml DATASETS.TEST \(\"$DATASET\",\) MODEL.WEIGHTS weights/<model_weights>.pth OUTPUT_DIR output/<model_name>/$DATASET
+ # Focal-Tiny model
+ python eval.py evaluate --conf_files configs/xdecoder/svlp_focalt_lang.yaml  --config_overrides {\"WEIGHT\":\"weights/xdecoder_focalt_best_openseg.pt\", \"DATASETS.TEST\":[\"$DATASET\"], \"SAVE_DIR\":\"output/xDecoder_tiny/$DATASET\"}
+ # Focal-Large model (not the official model from paper)
+ # python eval.py evaluate --conf_files configs/xdecoder/focall_lang.yaml  --config_overrides {\"WEIGHT\":\"weights/xdecoder_focall_last.pt\", \"DATASETS.TEST\":[\"$DATASET\"], \"SAVE_DIR\":\"output/xDecoder_large/$DATASET\"}
 done
 
 # Combine results
-python mess/evaluation/mess_evaluation.py --model_outputs output/<model_name> output/<model2_name> <...>
+python mess/evaluation/mess_evaluation.py --model_outputs output/xDecoder_tiny
+
+# cwfid different
 
 # Run evaluation with:
 # nohup bash mess/eval.sh > eval.log &

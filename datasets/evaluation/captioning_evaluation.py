@@ -14,8 +14,9 @@ import itertools
 import detectron2.utils.comm as comm
 from detectron2.evaluation.evaluator import DatasetEvaluator
 
-from caption_pycocotools.coco import COCO
-from pycocoevalcap.eval import COCOEvalCap
+# We could not install the module caption_pycocotools and avoid importing related evaluation code
+# from caption_pycocotools.coco import COCO
+# from pycocoevalcap.eval import COCOEvalCap
 
 
 class CaptioningEvaluator(DatasetEvaluator):

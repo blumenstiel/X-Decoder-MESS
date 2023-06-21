@@ -1,3 +1,49 @@
+# Multi-domain Evaluation of Semantic Segmentation (MESS) with X-Decoder
+
+[[Website (soon)](https://github.io)] [[arXiv (soon)](https://arxiv.org/)] [[GitHub](https://github.com/blumenstiel/MESS)]
+
+This directory contains the code for the MESS evaluation of X-Decoder. Please see the commits for our changes of the model.
+
+## Setup
+Create a conda environment `xdecoder` and install the required packages. See [mess/README.md](mess/README.md) for details.
+```sh
+ bash mess/setup_env.sh
+```
+
+Prepare the datasets by following the instructions in [mess/DATASETS.md](mess/DATASETS.md). The `xdecoder` env can be used for the dataset preparation. If you evaluate multiple models with MESS, you can change the `dataset_dir` argument and the `DETECTRON2_DATASETS` environment variable to a common directory (see [mess/DATASETS.md](mess/DATASETS.md) and [mess/eval.sh](mess/eval.sh), e.g., `../mess_datasets`). 
+
+Download the X-Decoder weights (see https://eval.ai/web/challenges/challenge-page/1931/overview). Note that the Focal-Tiny model is the official model from the paper. The Focal-Large model was released by the authors in their SEEM project and differs from the large, non-public model in the X-Decoder paper. 
+```sh
+mkdir weights
+wget https://huggingface.co/xdecoder/X-Decoder/resolve/main/xdecoder_focalt_best_openseg.pt -O weights/xdecoder_focalt_best_openseg.pt
+wget https://huggingface.co/xdecoder/X-Decoder/resolve/main/xdecoder_focall_last.pt -O weights/xdecoder_focall_last.pt
+```
+
+
+## Evaluation
+To evaluate the X-Decoder model on the MESS datasets, run
+```sh
+bash mess/eval.sh
+
+# for evaluation in the background:
+nohup bash mess/eval.sh > eval.log &
+tail -f eval.log 
+```
+
+For evaluating a single dataset, select the DATASET from [mess/DATASETS.md](mess/DATASETS.md), the DETECTRON2_DATASETS path, and run
+```
+conda activate xdecoder
+export DETECTRON2_DATASETS="datasets"
+DATASET=<dataset_name>
+
+# Tiny model
+python eval.py evaluate --conf_files configs/xdecoder/svlp_focalt_lang.yaml  --config_overrides {\"WEIGHT\":\"weights/xdecoder_focalt_best_openseg.pt\", \"DATASETS.TEST\":[\"$DATASET\"], \"SAVE_DIR\":\"output/xDecoder_tiny/$DATASET\"}
+# Large model (not official model from paper)
+python eval.py evaluate --conf_files configs/xdecoder/focall_lang.yaml  --config_overrides {\"WEIGHT\":\"weights/xdecoder_focall_last.pt\", \"DATASETS.TEST\":[\"$DATASET\"], \"SAVE_DIR\":\"output/xDecoder_large/$DATASET\"}
+```
+
+# --- Original X-Decoder README.md ---
+
 # X-Decoder: Generalized Decoding for Pixel, Image, and Language (CVPR2023)
 
 \[[Project Page](https://x-decoder-vl.github.io/)\]   \[[Paper](https://arxiv.org/pdf/2212.11270.pdf)\]    \[[HuggingFace All-in-One Demo](https://huggingface.co/spaces/xdecoder/Demo)\] \[[HuggingFace Instruct Demo](https://huggingface.co/spaces/xdecoder/Instruct-X-Decoder)\]  \[[Video](https://youtu.be/nZZTkYM0kd0)\]
